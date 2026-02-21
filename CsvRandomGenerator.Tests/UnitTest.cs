@@ -602,4 +602,86 @@ public class UnitTest
         // Cleanup
         Directory.Delete(folder, true);
     }
+
+    [Fact]
+    public void TestMainUnknownOptionShowsError()
+    {
+        var originalOut = Console.Out;
+        var originalErr = Console.Error;
+        var outWriter = new StringWriter();
+        var errWriter = new StringWriter();
+        Console.SetOut(outWriter);
+        Console.SetError(errWriter);
+
+        try
+        {
+            CsvRandomGenerator.Program.Main(new string[] { "--unknown", "1" });
+            var err = errWriter.ToString();
+            Assert.Contains("Error:", err);
+            Assert.Contains("未知のオプション", err);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetError(originalErr);
+            outWriter.Dispose();
+            errWriter.Dispose();
+        }
+    }
+
+    [Fact]
+    public void TestMainInvalidRowsShowsError()
+    {
+        var originalOut = Console.Out;
+        var originalErr = Console.Error;
+        var outWriter = new StringWriter();
+        var errWriter = new StringWriter();
+        Console.SetOut(outWriter);
+        Console.SetError(errWriter);
+
+        try
+        {
+            CsvRandomGenerator.Program.Main(new string[] { "--rows", "0", "--cols", "3" });
+            var err = errWriter.ToString();
+            Assert.Contains("Error:", err);
+            Assert.Contains("--rows", err);
+            Assert.Contains("1 以上", err);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetError(originalErr);
+            outWriter.Dispose();
+            errWriter.Dispose();
+        }
+    }
+
+    [Fact]
+    public void TestMainWithSeedOutputsSeedMessage()
+    {
+        var originalOut = Console.Out;
+        var outWriter = new StringWriter();
+        Console.SetOut(outWriter);
+
+        string tempPath = Path.GetTempPath();
+        string folder = Path.Combine(tempPath, "CsvRandomGeneratorTests_" + Guid.NewGuid().ToString());
+        string outputPath = Path.Combine(folder, "seed_output.csv");
+
+        try
+        {
+            CsvRandomGenerator.Program.Main(new string[] { "--rows", "3", "--cols", "2", "--seed", "42", "--output", outputPath });
+            var output = outWriter.ToString();
+            Assert.Contains("Seed: 42", output);
+            Assert.True(Directory.GetFiles(folder, "seed_output_*.csv").Length >= 1);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            outWriter.Dispose();
+            if (Directory.Exists(folder))
+            {
+                Directory.Delete(folder, true);
+            }
+        }
+    }
 }

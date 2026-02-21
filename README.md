@@ -11,20 +11,21 @@
 以下のコマンドでプログラムを実行します:
 
 ```bash
-dotnet run --rows <行数> --cols <列数> --output <出力ファイルパス> --sort-column <ソート列> --duration <間隔秒> --max-files <最大ファイル数> --column-types <列データ型>
+dotnet run -- --rows <行数> --cols <列数> --output <出力ファイルパス> --sort-column <ソート列> --duration <間隔秒> --max-files <最大ファイル数> --column-types <列データ型> --seed <シード>
 ```
 
-オプションは順不同で指定可能。ソート列は0から始まる列インデックス、省略可能。durationを指定すると、指定秒ごとにデータを追加し続けます。max-filesを指定すると、出力フォルダ内のファイル数を制限します。column-typesで特定の列にデータ型を指定できます。
+オプションは順不同で指定可能。ソート列は0から始まる列インデックス、省略可能。durationを指定すると、指定秒ごとにCSVを生成し続けます。max-filesを指定すると、出力フォルダ内のファイル数を制限します。column-typesで特定の列にデータ型を指定できます。`--seed`を指定すると再現可能な乱数で生成できます。
 
 ### オプション
 
-- `--rows <number>`: 行数 (デフォルト: 10)
-- `--cols <number>`: 列数 (デフォルト: 5)
+- `--rows <number>`: 行数 (1以上、デフォルト: 10)
+- `--cols <number>`: 列数 (1以上、デフォルト: 5)
 - `--output <path>`: 出力ファイルパス (デフォルト: output.csv)
 - `--sort-column <index>`: ソートする列 (0から始まるインデックス、省略可能)
-- `--duration <seconds>`: データ追加間隔 (継続モード、省略可能)
+- `--duration <seconds>`: CSV生成間隔 (0以上、継続モード、省略可能)
 - `--max-files <number>`: 出力フォルダ内の最大ファイル数 (0で無制限、デフォルト: 0)
 - `--column-types <types>`: 列ごとのデータ型指定 (例: '0:int,1:string,2:double')
+- `--seed <number>`: 乱数シード (省略可能、同じシードで再現可能)
 - `--help, -h`: ヘルプ表示
 
 ### 例
@@ -32,7 +33,7 @@ dotnet run --rows <行数> --cols <列数> --output <出力ファイルパス> -
 基本的な使用:
 
 ```bash
-dotnet run --cols 10 --rows 100 --output ./output/data.csv --sort-column 2
+dotnet run -- --cols 10 --rows 100 --output ./output/data.csv --sort-column 2
 ```
 
 これにより、100行10列のランダムデータを`./output`フォルダに生成し、3列目でソートして出力します。
@@ -40,15 +41,15 @@ dotnet run --cols 10 --rows 100 --output ./output/data.csv --sort-column 2
 継続的にデータを追加する場合:
 
 ```bash
-dotnet run --rows 10 --cols 5 --output data.csv --duration 5 --max-files 10
+dotnet run -- --rows 10 --cols 5 --output data.csv --duration 5 --max-files 10
 ```
 
-これにより、5秒ごとに10行5列のデータを`data.csv`に追加し続け、フォルダ内のファイル数を10に制限します。Ctrl+Cで停止。
+これにより、5秒ごとに10行5列のCSVを生成し続け、フォルダ内のファイル数を10に制限します。Ctrl+Cで停止。
 
 特定の列にデータ型を指定:
 
 ```bash
-dotnet run --rows 20 --cols 3 --column-types "0:int,1:string,2:datetime" --output custom_types.csv
+dotnet run -- --rows 20 --cols 3 --column-types "0:int,1:string,2:datetime" --output custom_types.csv
 ```
 
 これにより、1列目を整数、2列目を文字列、3列目を日時として20行3列のデータを生成します。
@@ -57,6 +58,12 @@ dotnet run --rows 20 --cols 3 --column-types "0:int,1:string,2:datetime" --outpu
 
 ```bash
 dotnet run -- --help
+```
+
+同じデータを再現したい場合:
+
+```bash
+dotnet run -- --rows 20 --cols 4 --seed 42 --output reproducible.csv
 ```
 
 ## 要件

@@ -99,7 +99,13 @@ namespace CsvRandomGenerator
                 }
             }
 
-            Console.WriteLine($"CSV data appended to {Path.Combine(folder, output)}");
+            try
+            {
+                Console.WriteLine($"CSV data appended to {Path.Combine(folder, output)}");
+            }
+            catch (ObjectDisposedException)
+            {
+            }
         }
     }
 }
